@@ -4,7 +4,7 @@ package fi.hsl.pulsarmqttsource;
  * Hello world!
  *
  */
-public class App 
+public class PulsarMqttSource
 {
     public static void main( String[] args )
     {
