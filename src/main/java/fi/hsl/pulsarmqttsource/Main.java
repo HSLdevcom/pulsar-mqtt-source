@@ -25,7 +25,7 @@ public class Main {
    * @param args Command-line arguments. Currently ignored.
    * @return Complete and valid configuration.
    */
-  private static Config createConfig(String[] args) {
+  private static Config createConfig(@SuppressWarnings("unused") String[] args) {
     Config fileConfig = parseFileConfig();
     Config envConfig = ConfigFactory.parseResources("environment.conf").resolve();
     Config fullConfig;
