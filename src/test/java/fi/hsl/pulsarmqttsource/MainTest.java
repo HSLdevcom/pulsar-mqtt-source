@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * Unit test template.
  */
-public class PulsarMqttSourceTest
+public class MainTest
 {
     /**
      * Rigorous Test :-)
