@@ -28,21 +28,7 @@ public class Main {
   private static Config createConfig(@SuppressWarnings("unused") String[] args) {
     Config fileConfig = parseFileConfig();
     Config envConfig = ConfigFactory.parseResources("environment.conf").resolve();
-    Config fullConfig;
-    if (fileConfig != null) {
-      fullConfig = envConfig.withFallback(fileConfig);
-    } else {
-      fullConfig = envConfig;
-    }
-    fullConfig.resolve();
-    try {
-      fullConfig.checkValid(ConfigFactory.parseResources("application.conf").resolve());
-    } catch (ConfigException.ValidationFailed e) {
-      System.err.println("Validating the given configuration failed.");
-      e.printStackTrace();
-      System.exit(1);
-    }
-    return fullConfig;
+    return mergeConfigs(fileConfig, envConfig);
   }
 
   /**
@@ -64,5 +50,32 @@ public class Main {
       }
     }
     return fileConfig;
+  }
+
+  /**
+   * Merge the given Configs and validate the result.
+   *
+   * <p>envConfig overrides any conflicting keys in fileConfig.
+   *
+   * @param fileConfig The Config read from a file or null.
+   * @param envConfig The Config read from the environment variables.
+   * @return The Config resulting from merging fileConfig and envConfig.
+   */
+  private static Config mergeConfigs(Config fileConfig, Config envConfig) {
+    Config fullConfig;
+    if (fileConfig != null) {
+      fullConfig = envConfig.withFallback(fileConfig);
+    } else {
+      fullConfig = envConfig;
+    }
+    fullConfig.resolve();
+    try {
+      fullConfig.checkValid(ConfigFactory.parseResources("application.conf").resolve());
+    } catch (ConfigException.ValidationFailed e) {
+      System.err.println("Validating the given configuration failed.");
+      e.printStackTrace();
+      System.exit(1);
+    }
+    return fullConfig;
   }
 }
