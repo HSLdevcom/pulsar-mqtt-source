@@ -1,13 +1,81 @@
 package fi.hsl.pulsarmqttsource;
 
-/**
- * Hello world!
- *
- */
-public class Main
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
+import java.io.File;
+
+/** Main reads the configuration, starts logging and passes the baton onwards. */
+public class Main {
+
+  public static void main(String[] args) {
+    Config config = createConfig(args);
+    System.out.println(config);
+    // Foo.run(conf);
+  }
+
+  /**
+   * Create a valid Config from a configuration file and environment variables.
+   *
+   * <p>If the environment variable CONFIG_PATH is set, it determines the path to the configuration
+   * file. Otherwise only the other environment variables affect the configuration.
+   *
+   * <p>Environment variables override values in the configuration file in case of conflict.
+   *
+   * @param args Command-line arguments. Currently ignored.
+   * @return Complete and valid configuration.
+   */
+  private static Config createConfig(@SuppressWarnings("unused") String[] args) {
+    Config fileConfig = parseFileConfig();
+    Config envConfig = ConfigFactory.parseResources("environment.conf").resolve();
+    return mergeConfigs(fileConfig, envConfig);
+  }
+
+  /**
+   * Parse a Config from the path given by the environment variable CONFIG_PATH. If CONFIG_PATH is
+   * unset, return null.
+   *
+   * @return Either a configuration parsed from the given path or null.
+   */
+  private static Config parseFileConfig() {
+    Config fileConfig = null;
+    String configPath = System.getenv("CONFIG_PATH");
+    if (configPath != null) {
+      try {
+        fileConfig = ConfigFactory.parseFile(new File(configPath)).resolve();
+      } catch (ConfigException e) {
+        System.err.println("Parsing the configuration file from " + configPath + " failed.");
+        e.printStackTrace();
+        System.exit(1);
+      }
     }
+    return fileConfig;
+  }
+
+  /**
+   * Merge the given Configs and validate the result.
+   *
+   * <p>envConfig overrides any conflicting keys in fileConfig.
+   *
+   * @param fileConfig The Config read from a file or null.
+   * @param envConfig The Config read from the environment variables.
+   * @return The Config resulting from merging fileConfig and envConfig.
+   */
+  private static Config mergeConfigs(Config fileConfig, Config envConfig) {
+    Config fullConfig;
+    if (fileConfig != null) {
+      fullConfig = envConfig.withFallback(fileConfig);
+    } else {
+      fullConfig = envConfig;
+    }
+    fullConfig.resolve();
+    try {
+      fullConfig.checkValid(ConfigFactory.parseResources("application.conf").resolve());
+    } catch (ConfigException.ValidationFailed e) {
+      System.err.println("Validating the given configuration failed.");
+      e.printStackTrace();
+      System.exit(1);
+    }
+    return fullConfig;
+  }
 }
