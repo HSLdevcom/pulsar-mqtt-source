@@ -31,7 +31,7 @@
               <artifactId>asm</artifactId>
               <!-- FIXME: Remove when maven-shade-plugin is updated. -->
               <!-- Use a later version of ASM to handle Java 10. -->
-              <version>6.2</version>
+              <version>6.2.1</version>
             </dependency>
           </dependencies>
           <configuration>
