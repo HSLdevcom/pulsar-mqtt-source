@@ -1,4 +1,4 @@
-FROM maven:3.5.4-jdk-10-slim as builder
+FROM maven:3.6-jdk-10-slim as builder
 LABEL maintainer="haphut@gmail.com"
 
 WORKDIR /app
